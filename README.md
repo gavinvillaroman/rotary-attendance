@@ -1,46 +1,46 @@
 # Rotary Attendance
 
-Local prototype for tracking attendance at Rotary meetings. Apple-clean visual treatment, mobile-first, runs on `localhost:3000`. No auth — just two people logging check-ins during meetings.
+Attendance tracker for RC Cabanatuan North. Apple-clean visuals, mobile-first, gated by magic-link auth + email allowlist.
 
-**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · Airtable (via server-side REST)
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase (Postgres + Auth)
 
 ## Setup
 
-1. Copy the env example and paste in your Airtable personal access token:
+1. Copy the env example:
 
    ```bash
    cp .env.local.example .env.local
-   # then edit .env.local
    ```
 
+   Fill in:
+
    ```
-   AIRTABLE_TOKEN=patXXXXXXXXXXXXX
-   AIRTABLE_BASE_ID=appjrCXmKfLR6MLGL
+   NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
-   The token needs `data.records:read`, `data.records:write`, and `schema.bases:read` scopes on the **Rotary** base. It is server-side only — never exposed to the browser.
-
-2. Install deps and start dev server:
+2. Install and run:
 
    ```bash
    npm install
    npm run dev
    ```
 
-3. Open <http://localhost:3000>.
+3. Open <http://localhost:3000>. You will be redirected to `/login` — enter your email (must be in `allowed_emails`) and click the magic link.
 
 ## Pages
 
-- `/` — Events list. `+ New Event` opens a modal.
-- `/events/[id]` — Event detail with check-in flow. Add member (search) or guest (free text). Remove with confirm. Delete event removes all check-ins too.
-- `/members` — Read-only roster (the underlying Airtable table is shared with dues tracking).
+- `/` — Dashboard (member/event/attendance counts, next event, recent activity)
+- `/events` — Events list. `+ New Event` opens a modal.
+- `/events/[id]` — Event detail with check-in flow (search-and-add member or guest)
+- `/members` — Members roster with CLLA 2026 dues columns. Add / edit / delete from the app.
+- `/attendance` — Full check-in log across every event.
 
-## Airtable schema
+## Schema
 
-Three tables in base `appjrCXmKfLR6MLGL`:
+Four tables in Supabase: `members`, `events`, `attendance`, `allowed_emails`. RLS allows reads/writes only when the signed-in user's email is in `allowed_emails`. Migrations live in `supabase/migrations/`.
 
-- **Members** (`tblKR99JLmo85ER7R`) — existing RC Cabanatuan North roster
-- **Events** (`tblUS7a8PKhSj8CFG`)
-- **Attendance** (`tblRMKKZ168TgPAC7`) — linked to Events + Members
+## Auth
 
-Field IDs are centralised in `lib/fields.ts`. All Airtable calls go through `/api/*` route handlers in `app/api/`.
+Magic-link sign-in via Supabase Auth. `app/auth/callback/route.ts` validates that the user's email is in `allowed_emails` and signs them out otherwise. Middleware refreshes the session on every request and gates every route except `/login` and `/auth/*`.
