@@ -3,10 +3,40 @@
 import { useMemo, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { StatusBadge } from "@/components/TypeBadge";
+import { MemberFormModal } from "@/components/MemberFormModal";
 import type { MemberWithCount } from "./page";
+import type { CllaStatus, Member } from "@/lib/types";
 
-type SortKey = "name" | "title" | "status" | "attendance";
+type SortKey = "name" | "title" | "status" | "attendance" | "clla";
 type StatusFilter = "all" | "Active" | "Inactive" | "Honorary";
+
+function pesoFormat(n: number | null): string {
+  if (n == null) return "—";
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
+function CllaBadge({ status }: { status: CllaStatus | null }) {
+  if (!status) return <span className="text-[var(--text-muted)]">—</span>;
+  const color =
+    status === "Paid"
+      ? "bg-green-100 text-green-800"
+      : status === "Confirmed"
+        ? "bg-yellow-100 text-yellow-800"
+        : status === "Declined"
+          ? "bg-red-100 text-red-700"
+          : "bg-gray-100 text-gray-700";
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${color}`}
+    >
+      {status}
+    </span>
+  );
+}
 
 export function MembersTable({
   members,
@@ -19,6 +49,8 @@ export function MembersTable({
   const [sort, setSort] = useState<SortKey>("name");
   const [dir, setDir] = useState<"asc" | "desc">("asc");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [addOpen, setAddOpen] = useState(false);
+  const [editing, setEditing] = useState<Member | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -31,7 +63,7 @@ export function MembersTable({
       );
     }
     if (statusFilter !== "all") {
-      rows = rows.filter((m) => (m.status ?? "") === statusFilter);
+      rows = rows.filter((m) => m.status === statusFilter);
     }
     rows = [...rows].sort((a, b) => {
       let cmp = 0;
@@ -42,6 +74,10 @@ export function MembersTable({
         cmp = (a.status ?? "").localeCompare(b.status ?? "");
       else if (sort === "attendance")
         cmp = a.attendanceCount - b.attendanceCount;
+      else if (sort === "clla")
+        cmp = (a.clla_2026_status ?? "").localeCompare(
+          b.clla_2026_status ?? "",
+        );
       return dir === "asc" ? cmp : -cmp;
     });
     return rows;
@@ -73,12 +109,12 @@ export function MembersTable({
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight">Members</h1>
           <p className="mt-1 text-[14px] text-[var(--text-muted)]">
-            Roster from Airtable · read-only
+            Club roster · {members.length} members
           </p>
         </div>
-        <div className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-[12px] text-[var(--text-muted)]">
-          Synced from Airtable · {members.length} members
-        </div>
+        <button className="btn-primary" onClick={() => setAddOpen(true)}>
+          + Add Member
+        </button>
       </header>
 
       {error && (
@@ -128,26 +164,21 @@ export function MembersTable({
             <thead>
               <tr>
                 <th style={{ width: 56 }} />
-                <th
-                  className="sortable"
-                  onClick={() => toggleSort("name")}
-                >
+                <th className="sortable" onClick={() => toggleSort("name")}>
                   Name{indicator("name")}
                 </th>
-                <th
-                  className="sortable"
-                  onClick={() => toggleSort("title")}
-                >
+                <th className="sortable" onClick={() => toggleSort("title")}>
                   Title{indicator("title")}
                 </th>
                 <th>Classification</th>
                 <th>Email</th>
-                <th
-                  className="sortable"
-                  onClick={() => toggleSort("status")}
-                >
+                <th className="sortable" onClick={() => toggleSort("status")}>
                   Status{indicator("status")}
                 </th>
+                <th className="sortable" onClick={() => toggleSort("clla")}>
+                  CLLA 2026{indicator("clla")}
+                </th>
+                <th style={{ textAlign: "right" }}>Amount Paid</th>
                 <th
                   className="sortable"
                   style={{ textAlign: "right" }}
@@ -159,7 +190,11 @@ export function MembersTable({
             </thead>
             <tbody>
               {filtered.map((m) => (
-                <tr key={m.id}>
+                <tr
+                  key={m.id}
+                  className="row-link"
+                  onClick={() => setEditing(m)}
+                >
                   <td>
                     <Avatar name={m.name} />
                   </td>
@@ -176,6 +211,15 @@ export function MembersTable({
                   <td>
                     <StatusBadge status={m.status} />
                   </td>
+                  <td>
+                    <CllaBadge status={m.clla_2026_status} />
+                  </td>
+                  <td
+                    className="text-[var(--text-muted)] tabular-nums"
+                    style={{ textAlign: "right" }}
+                  >
+                    {pesoFormat(m.clla_2026_amount_paid)}
+                  </td>
                   <td
                     className="font-medium tabular-nums"
                     style={{ textAlign: "right" }}
@@ -187,6 +231,17 @@ export function MembersTable({
             </tbody>
           </table>
         </div>
+      )}
+
+      {addOpen && (
+        <MemberFormModal mode="create" onClose={() => setAddOpen(false)} />
+      )}
+      {editing && (
+        <MemberFormModal
+          mode="edit"
+          member={editing}
+          onClose={() => setEditing(null)}
+        />
       )}
     </div>
   );
