@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { airtable } from "@/lib/airtable";
-import { TABLES } from "@/lib/fields";
-import { parseEvent } from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
 import type { Event } from "@/lib/types";
 import { TypeBadge } from "@/components/TypeBadge";
 import { CheckInPanel } from "./check-in-panel";
@@ -23,17 +21,14 @@ export default async function EventDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  let event: Event | null = null;
-  let error: string | null = null;
-  try {
-    const rec = await airtable<{
-      id: string;
-      fields: Record<string, unknown>;
-    }>(TABLES.Events, `/${id}?returnFieldsByFieldId=true`);
-    event = parseEvent({ id: rec.id, createdTime: "", fields: rec.fields });
-  } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
-  }
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  const event = data as Event | null;
 
   if (error || !event) {
     return (
@@ -42,7 +37,7 @@ export default async function EventDetailPage({
           ← Back to events
         </Link>
         <div className="card mt-4 p-4 text-sm text-red-600">
-          {error ?? "Event not found"}
+          {error?.message ?? "Event not found"}
         </div>
       </div>
     );
@@ -67,7 +62,7 @@ export default async function EventDetailPage({
               {event.name}
             </h1>
             <p className="mt-1 text-[14px] text-[var(--text-muted)]">
-              {formatDate(event.date)}
+              {formatDate(event.event_date)}
               {event.location ? ` · ${event.location}` : ""}
             </p>
           </div>

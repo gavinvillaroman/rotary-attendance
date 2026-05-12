@@ -64,7 +64,7 @@ export function CheckInPanel({
   }
 
   const excluded = new Set(
-    attendance.map((a) => a.memberId).filter(Boolean) as string[],
+    attendance.map((a) => a.member_id).filter(Boolean) as string[],
   );
 
   return (

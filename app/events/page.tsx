@@ -1,28 +1,24 @@
-export const revalidate = 30;
-
-import { airtableListAll } from "@/lib/airtable";
-import { EVENT_FIELDS, TABLES } from "@/lib/fields";
-import { parseAttendance, parseEvent } from "@/lib/types";
-import type { EventWithCount } from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
+import type { Event, EventWithCount } from "@/lib/types";
 import { EventsTable } from "./events-table";
 
 async function loadEvents(): Promise<EventWithCount[]> {
-  const [eventRecs, attendanceRecs] = await Promise.all([
-    airtableListAll(TABLES.Events, {
-      "sort[0][field]": EVENT_FIELDS.Date,
-      "sort[0][direction]": "desc",
-    }),
-    airtableListAll(TABLES.Attendance),
+  const supabase = await createClient();
+  const [evRes, attRes] = await Promise.all([
+    supabase.from("events").select("*").order("event_date", { ascending: false }),
+    supabase.from("attendance").select("event_id"),
   ]);
+  if (evRes.error) throw evRes.error;
+  if (attRes.error) throw attRes.error;
+
   const counts = new Map<string, number>();
-  for (const rec of attendanceRecs) {
-    const a = parseAttendance(rec);
-    if (a.eventId) counts.set(a.eventId, (counts.get(a.eventId) ?? 0) + 1);
+  for (const a of attRes.data ?? []) {
+    if (a.event_id) counts.set(a.event_id, (counts.get(a.event_id) ?? 0) + 1);
   }
-  return eventRecs.map((r) => {
-    const ev = parseEvent(r);
-    return { ...ev, attendeeCount: counts.get(ev.id) ?? 0 };
-  });
+  return (evRes.data as Event[]).map((ev) => ({
+    ...ev,
+    attendeeCount: counts.get(ev.id) ?? 0,
+  }));
 }
 
 export default async function EventsPage() {

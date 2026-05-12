@@ -1,20 +1,6 @@
-export const revalidate = 30;
-
 import Link from "next/link";
-import { airtableListAll } from "@/lib/airtable";
-import {
-  ATTENDANCE_FIELDS,
-  EVENT_FIELDS,
-  MEMBER_FIELDS,
-  TABLES,
-} from "@/lib/fields";
-import {
-  parseAttendance,
-  parseEvent,
-  parseMember,
-  type Event,
-  type Member,
-} from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
+import type { Event } from "@/lib/types";
 import { TypeBadge } from "@/components/TypeBadge";
 import { DashboardHeader } from "./dashboard-header";
 
@@ -60,42 +46,42 @@ type DashboardData = {
 };
 
 async function loadDashboard(): Promise<DashboardData> {
-  const [memRecs, evRecs, attRecs] = await Promise.all([
-    airtableListAll(TABLES.Members, {
-      "sort[0][field]": MEMBER_FIELDS.Name,
-      "sort[0][direction]": "asc",
-    }),
-    airtableListAll(TABLES.Events, {
-      "sort[0][field]": EVENT_FIELDS.Date,
-      "sort[0][direction]": "desc",
-    }),
-    airtableListAll(TABLES.Attendance, {
-      "sort[0][field]": ATTENDANCE_FIELDS.CheckedInAt,
-      "sort[0][direction]": "desc",
-    }),
+  const supabase = await createClient();
+  const [membersRes, eventsRes, attRes] = await Promise.all([
+    supabase.from("members").select("*").order("name", { ascending: true }),
+    supabase.from("events").select("*").order("event_date", { ascending: false }),
+    supabase
+      .from("attendance")
+      .select("*, member:members(id,name,title)")
+      .order("checked_in_at", { ascending: false }),
   ]);
 
-  const members: Member[] = memRecs.map(parseMember);
-  const events: Event[] = evRecs.map(parseEvent);
+  if (membersRes.error) throw membersRes.error;
+  if (eventsRes.error) throw eventsRes.error;
+  if (attRes.error) throw attRes.error;
+
+  const members = membersRes.data ?? [];
+  const events = (eventsRes.data ?? []) as Event[];
+  const attendance = attRes.data ?? [];
 
   const eventMap = new Map<string, Event>();
   events.forEach((e) => eventMap.set(e.id, e));
-  const memberMap = new Map<string, Member>();
-  members.forEach((m) => memberMap.set(m.id, m));
 
   const today = new Date().toISOString().slice(0, 10);
   const now = new Date();
   const yyyymm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   const upcoming = events
-    .filter((e) => e.date && e.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .filter((e) => e.event_date && e.event_date >= today)
+    .sort((a, b) => a.event_date.localeCompare(b.event_date));
 
   const attendanceCounts = new Map<string, number>();
-  for (const r of attRecs) {
-    const a = parseAttendance(r);
-    if (a.eventId) {
-      attendanceCounts.set(a.eventId, (attendanceCounts.get(a.eventId) ?? 0) + 1);
+  for (const a of attendance) {
+    if (a.event_id) {
+      attendanceCounts.set(
+        a.event_id,
+        (attendanceCounts.get(a.event_id) ?? 0) + 1,
+      );
     }
   }
 
@@ -104,24 +90,23 @@ async function loadDashboard(): Promise<DashboardData> {
     attendeeCount: attendanceCounts.get(ev.id) ?? 0,
   }));
 
-  const recentCheckIns = attRecs.slice(0, 10).map((r) => {
-    const a = parseAttendance(r);
-    const member = a.memberId ? memberMap.get(a.memberId) : null;
-    const ev = a.eventId ? eventMap.get(a.eventId) : null;
+  const recentCheckIns = attendance.slice(0, 10).map((a) => {
+    const ev = a.event_id ? eventMap.get(a.event_id) : null;
+    const memberName = (a.member as { name?: string } | null)?.name;
     return {
-      id: a.id,
-      name: member ? member.name : a.guestName ?? "Unknown",
+      id: a.id as string,
+      name: memberName ?? a.guest_name ?? "Unknown",
       eventName: ev?.name ?? "(deleted event)",
-      eventId: a.eventId,
-      checkedInAt: a.checkedInAt,
+      eventId: a.event_id ?? null,
+      checkedInAt: a.checked_in_at ?? null,
     };
   });
 
   return {
     totalMembers: members.length,
     activeMembers: members.filter((m) => m.status === "Active").length,
-    eventsThisMonth: events.filter((e) => e.date.startsWith(yyyymm)).length,
-    totalAttendance: attRecs.length,
+    eventsThisMonth: events.filter((e) => e.event_date?.startsWith(yyyymm)).length,
+    totalAttendance: attendance.length,
     nextEvent: upcoming[0] ?? null,
     recentEvents,
     recentCheckIns,
@@ -182,10 +167,7 @@ export default async function DashboardPage() {
           value={data.totalMembers}
           sub={`${data.activeMembers} active`}
         />
-        <StatCard
-          label="Events this Month"
-          value={data.eventsThisMonth}
-        />
+        <StatCard label="Events this Month" value={data.eventsThisMonth} />
         <StatCard
           label="Total Attendance"
           value={data.totalAttendance}
@@ -211,7 +193,7 @@ export default async function DashboardPage() {
           }
           sub={
             data.nextEvent ? (
-              formatDate(data.nextEvent.date)
+              formatDate(data.nextEvent.event_date)
             ) : (
               <Link
                 href="/events"
@@ -258,7 +240,7 @@ export default async function DashboardPage() {
                         <TypeBadge type={event.type} />
                       </div>
                       <div className="mt-0.5 text-[12px] text-[var(--text-muted)]">
-                        {formatDate(event.date)}
+                        {formatDate(event.event_date)}
                         {event.location ? ` · ${event.location}` : ""}
                       </div>
                     </div>

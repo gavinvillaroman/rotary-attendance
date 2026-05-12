@@ -1,6 +1,4 @@
-import { revalidateTag } from "next/cache";
-import { airtable } from "@/lib/airtable";
-import { TABLES } from "@/lib/fields";
+import { createClient } from "@/lib/supabase/server";
 
 export async function DELETE(
   _req: Request,
@@ -8,8 +6,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await airtable(TABLES.Attendance, `/${id}`, { method: "DELETE" });
-    revalidateTag("airtable", "max");
+    const supabase = await createClient();
+    const { error } = await supabase.from("attendance").delete().eq("id", id);
+    if (error) throw error;
     return Response.json({ ok: true });
   } catch (e) {
     return Response.json(

@@ -22,7 +22,7 @@ export function AttendeeRow({
 }) {
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
-  const name = attendance.member?.name ?? attendance.guestName ?? "Unknown";
+  const name = attendance.member?.name ?? attendance.guest_name ?? "Unknown";
   const isGuest = !attendance.member;
 
   async function handleRemove() {
@@ -40,7 +40,7 @@ export function AttendeeRow({
           {isGuest && <span className="badge badge-muted">Guest</span>}
         </div>
         <div className="text-xs text-[var(--text-muted)]">
-          Checked in {formatTime(attendance.checkedInAt)}
+          Checked in {formatTime(attendance.checked_in_at)}
         </div>
       </div>
       {!confirming ? (

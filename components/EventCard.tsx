@@ -21,7 +21,7 @@ export function EventCard({ event }: { event: EventWithCount }) {
       <div className="mb-2 flex items-center gap-2">
         {event.type && <span className="badge">{event.type}</span>}
         <span className="text-xs text-[var(--text-muted)]">
-          {formatDate(event.date)}
+          {formatDate(event.event_date)}
         </span>
       </div>
       <h3 className="text-[17px] font-semibold leading-tight text-[var(--text)]">

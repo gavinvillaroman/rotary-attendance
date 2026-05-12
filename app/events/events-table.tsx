@@ -45,7 +45,7 @@ export function EventsTable({
       : events;
     const sortedRows = [...filtered].sort((a, b) => {
       let cmp = 0;
-      if (sort === "date") cmp = a.date.localeCompare(b.date);
+      if (sort === "date") cmp = a.event_date.localeCompare(b.event_date);
       else if (sort === "name") cmp = a.name.localeCompare(b.name);
       else if (sort === "attendees") cmp = a.attendeeCount - b.attendeeCount;
       return dir === "asc" ? cmp : -cmp;
@@ -161,7 +161,7 @@ export function EventsTable({
                 >
                   <td className="font-medium">{ev.name}</td>
                   <td className="text-[var(--text-muted)] tabular-nums">
-                    {formatDate(ev.date)}
+                    {formatDate(ev.event_date)}
                   </td>
                   <td>
                     <TypeBadge type={ev.type} />

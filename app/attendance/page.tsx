@@ -1,18 +1,4 @@
-export const revalidate = 30;
-
-import { airtableListAll } from "@/lib/airtable";
-import {
-  ATTENDANCE_FIELDS,
-  EVENT_FIELDS,
-  TABLES,
-} from "@/lib/fields";
-import {
-  parseAttendance,
-  parseEvent,
-  parseMember,
-  type Event,
-  type Member,
-} from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
 import { AttendanceLogTable } from "./attendance-table";
 
 export type AttendanceLogRow = {
@@ -28,48 +14,34 @@ export type AttendanceLogRow = {
 };
 
 async function loadLog(): Promise<AttendanceLogRow[]> {
-  const [attRecs, evRecs, memRecs] = await Promise.all([
-    airtableListAll(TABLES.Attendance, {
-      "sort[0][field]": ATTENDANCE_FIELDS.CheckedInAt,
-      "sort[0][direction]": "desc",
-    }),
-    airtableListAll(TABLES.Events, {
-      "sort[0][field]": EVENT_FIELDS.Date,
-      "sort[0][direction]": "desc",
-    }),
-    airtableListAll(TABLES.Members),
-  ]);
-  const eventMap = new Map<string, Event>();
-  evRecs.forEach((r) => {
-    const ev = parseEvent(r);
-    eventMap.set(ev.id, ev);
-  });
-  const memberMap = new Map<string, Member>();
-  memRecs.forEach((r) => {
-    const m = parseMember(r);
-    memberMap.set(m.id, m);
-  });
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("attendance")
+    .select(
+      "id, member_id, event_id, guest_name, checked_in_at, member:members(name), event:events(name, event_date, type)",
+    )
+    .order("checked_in_at", { ascending: false });
+  if (error) throw error;
 
-  const rows: AttendanceLogRow[] = attRecs.map((r) => {
-    const a = parseAttendance(r);
-    const ev = a.eventId ? eventMap.get(a.eventId) : null;
-    const member = a.memberId ? memberMap.get(a.memberId) : null;
+  return (data ?? []).map((r) => {
+    const member = r.member as { name?: string } | null;
+    const event = r.event as {
+      name?: string;
+      event_date?: string;
+      type?: string | null;
+    } | null;
     return {
-      id: a.id,
-      checkedInAt: a.checkedInAt,
-      attendeeName: member ? member.name : a.guestName ?? "Unknown",
+      id: r.id as string,
+      checkedInAt: r.checked_in_at as string | null,
+      attendeeName: member?.name ?? r.guest_name ?? "Unknown",
       isGuest: !member,
-      memberId: a.memberId,
-      eventId: a.eventId,
-      eventName: ev?.name ?? "(deleted event)",
-      eventDate: ev?.date ?? "",
-      eventType: ev?.type ?? null,
+      memberId: r.member_id ?? null,
+      eventId: r.event_id ?? null,
+      eventName: event?.name ?? "(deleted event)",
+      eventDate: event?.event_date ?? "",
+      eventType: event?.type ?? null,
     };
   });
-  rows.sort((a, b) =>
-    (b.checkedInAt ?? "").localeCompare(a.checkedInAt ?? ""),
-  );
-  return rows;
 }
 
 export default async function AttendancePage() {

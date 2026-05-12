@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { EVENT_TYPES } from "@/lib/fields";
+import { EVENT_TYPES } from "@/lib/types";
 
 export function NewEventModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
