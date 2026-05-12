@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <mask id="cutout">
+      <rect width="100" height="100" fill="white"/>
+      <!-- 6 spokes leaving 6 pie slices cut out -->
+      <g transform="translate(50 50)">
+        <g fill="black">
+          <path d="M 0 -28 A 28 28 0 0 1 24.25 -14 L 6 -6 A 8 8 0 0 0 0 -8 Z"/>
+          <path d="M 24.25 -14 A 28 28 0 0 1 24.25 14 L 8 0 L 6 -6 Z"/>
+          <path d="M 24.25 14 A 28 28 0 0 1 0 28 L 0 8 L 8 0 Z"/>
+          <path d="M 0 28 A 28 28 0 0 1 -24.25 14 L -6 6 A 8 8 0 0 0 0 8 Z"/>
+          <path d="M -24.25 14 A 28 28 0 0 1 -24.25 -14 L -8 0 L -6 6 Z"/>
+          <path d="M -24.25 -14 A 28 28 0 0 1 0 -28 L 0 -8 L -8 0 Z"/>
+        </g>
+      </g>
+      <!-- keyway slot at top -->
+      <rect x="46" y="14" width="8" height="14" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- gold gear with 24 teeth -->
+  <g transform="translate(50 50)" fill="#F7A81B">
+    <g id="teeth">
+      <!-- generate 24 teeth around perimeter -->
+      <rect x="-3" y="-46" width="6" height="8" rx="1"/>
+      <g transform="rotate(15)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(30)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(45)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(60)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(75)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(90)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(105)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(120)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(135)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(150)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(165)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(180)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(195)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(210)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(225)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(240)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(255)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(270)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(285)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(300)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(315)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(330)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+      <g transform="rotate(345)"><rect x="-3" y="-46" width="6" height="8" rx="1"/></g>
+    </g>
+    <!-- main wheel body with spoke cutouts and keyway -->
+    <circle cx="0" cy="0" r="38" mask="url(#cutout)"/>
+  </g>
+</svg>

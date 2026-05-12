@@ -15,10 +15,9 @@ export default async function LoginPage({
         <div className="mb-6 flex items-center gap-2.5">
           <div
             aria-hidden
-            className="grid h-9 w-9 place-items-center rounded-full bg-[#0071e3] text-white"
-            style={{ fontSize: 15, fontWeight: 700 }}
+            className="grid h-9 w-9 place-items-center rounded-full bg-[#17458F]"
           >
-            R
+            <img src="/icon.svg" alt="" width={24} height={24} />
           </div>
           <div>
             <div className="text-[15px] font-semibold leading-tight">

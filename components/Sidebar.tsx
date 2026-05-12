@@ -117,10 +117,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <div className="flex items-center gap-2.5 px-5 pb-5 pt-6">
         <div
           aria-hidden
-          className="grid h-8 w-8 place-items-center rounded-full bg-[#0071e3] text-white"
-          style={{ fontSize: 14, fontWeight: 700 }}
+          className="grid h-8 w-8 place-items-center rounded-full bg-[#17458F]"
         >
-          R
+          <img src="/icon.svg" alt="" width={22} height={22} />
         </div>
         <div className="min-w-0">
           <div className="truncate text-[14px] font-semibold leading-tight">
