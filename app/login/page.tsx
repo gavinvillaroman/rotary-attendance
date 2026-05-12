@@ -13,12 +13,13 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-4">
       <div className="card w-full max-w-sm p-8" style={{ boxShadow: "var(--shadow-modal)" }}>
         <div className="mb-6 flex items-center gap-2.5">
-          <div
+          <img
+            src="/icon.png"
+            alt=""
+            width={36}
+            height={36}
             aria-hidden
-            className="grid h-9 w-9 place-items-center rounded-full bg-[#17458F]"
-          >
-            <img src="/icon.svg" alt="" width={24} height={24} />
-          </div>
+          />
           <div>
             <div className="text-[15px] font-semibold leading-tight">
               RC Cabanatuan North

@@ -115,12 +115,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <aside className="flex h-screen w-[240px] flex-col border-r border-[var(--border)] bg-[var(--surface)] md:sticky md:top-0">
       <div className="flex items-center gap-2.5 px-5 pb-5 pt-6">
-        <div
+        <img
+          src="/icon.png"
+          alt=""
+          width={32}
+          height={32}
           aria-hidden
-          className="grid h-8 w-8 place-items-center rounded-full bg-[#17458F]"
-        >
-          <img src="/icon.svg" alt="" width={22} height={22} />
-        </div>
+        />
         <div className="min-w-0">
           <div className="truncate text-[14px] font-semibold leading-tight">
             RC Cabanatuan North
@@ -179,9 +180,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <span>Sign out</span>
           </button>
         </form>
-        <div className="mt-3 px-3 text-[11px] text-[var(--text-muted)]">
-          Rotary Attendance
-        </div>
       </div>
     </aside>
   );
