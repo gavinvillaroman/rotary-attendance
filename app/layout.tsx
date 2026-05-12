@@ -3,8 +3,8 @@ import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "Rotary Attendance",
-  description: "Attendance tracker for Rotary meetings",
+  title: "RC Cabanatuan North",
+  description: "Club management for Rotary Club of Cabanatuan North",
 };
 
 export default function RootLayout({
