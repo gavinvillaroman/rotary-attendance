@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rotary Attendance
 
-## Getting Started
+Local prototype for tracking attendance at Rotary meetings. Apple-clean visual treatment, mobile-first, runs on `localhost:3000`. No auth — just two people logging check-ins during meetings.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind v4 · Airtable (via server-side REST)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Copy the env example and paste in your Airtable personal access token:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```bash
+   cp .env.local.example .env.local
+   # then edit .env.local
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```
+   AIRTABLE_TOKEN=patXXXXXXXXXXXXX
+   AIRTABLE_BASE_ID=appjrCXmKfLR6MLGL
+   ```
 
-## Learn More
+   The token needs `data.records:read`, `data.records:write`, and `schema.bases:read` scopes on the **Rotary** base. It is server-side only — never exposed to the browser.
 
-To learn more about Next.js, take a look at the following resources:
+2. Install deps and start dev server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Open <http://localhost:3000>.
 
-## Deploy on Vercel
+## Pages
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/` — Events list. `+ New Event` opens a modal.
+- `/events/[id]` — Event detail with check-in flow. Add member (search) or guest (free text). Remove with confirm. Delete event removes all check-ins too.
+- `/members` — Read-only roster (the underlying Airtable table is shared with dues tracking).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Airtable schema
+
+Three tables in base `appjrCXmKfLR6MLGL`:
+
+- **Members** (`tblKR99JLmo85ER7R`) — existing RC Cabanatuan North roster
+- **Events** (`tblUS7a8PKhSj8CFG`)
+- **Attendance** (`tblRMKKZ168TgPAC7`) — linked to Events + Members
+
+Field IDs are centralised in `lib/fields.ts`. All Airtable calls go through `/api/*` route handlers in `app/api/`.
