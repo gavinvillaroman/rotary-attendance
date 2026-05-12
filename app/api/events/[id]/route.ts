@@ -34,12 +34,13 @@ export async function DELETE(
   try {
     const { id } = await params;
     // Find all attendance for this event and delete first (no cascade).
-    // filterByFormula requires field NAMES, not IDs.
-    const formula = `FIND('${id}', ARRAYJOIN({Event}))`;
-    const attRecs = await airtableListAll(TABLES.Attendance, {
-      filterByFormula: formula,
-    });
-    const ids = attRecs.map((r) => parseAttendance(r).id);
+    // Filter in code because ARRAYJOIN on linked field returns primary
+    // field values, not record IDs.
+    const attRecs = await airtableListAll(TABLES.Attendance);
+    const ids = attRecs
+      .map(parseAttendance)
+      .filter((a) => a.eventId === id)
+      .map((a) => a.id);
     // Airtable delete supports up to 10 record IDs per request.
     for (let i = 0; i < ids.length; i += 10) {
       const chunk = ids.slice(i, i + 10);

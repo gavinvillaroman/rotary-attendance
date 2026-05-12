@@ -14,14 +14,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    // filterByFormula only accepts field NAMES, not IDs. Sort accepts either.
-    const formula = `FIND('${id}', ARRAYJOIN({Event}))`;
+    // ARRAYJOIN on a linked-record field returns primary-field values, not
+    // record IDs, so filtering by linked record ID via formula is not possible.
+    // Fetch all and filter in code — fine for prototype scale.
     const attRecs = await airtableListAll(TABLES.Attendance, {
-      filterByFormula: formula,
       "sort[0][field]": ATTENDANCE_FIELDS.CheckedInAt,
       "sort[0][direction]": "desc",
     });
-    const attendance = attRecs.map(parseAttendance);
+    const attendance = attRecs
+      .map(parseAttendance)
+      .filter((a) => a.eventId === id);
 
     // Look up members in a single pass.
     const memberIds = Array.from(
