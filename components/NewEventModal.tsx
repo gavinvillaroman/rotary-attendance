@@ -9,6 +9,7 @@ export function NewEventModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [type, setType] = useState<string>(EVENT_TYPES[0]);
+  const [customType, setCustomType] = useState(false);
   const [location, setLocation] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,21 +76,51 @@ export function NewEventModal({ onClose }: { onClose: () => void }) {
             <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">
               Type
             </label>
-            <input
-              className="input"
-              list="event-types"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              placeholder="Pick or type a new type"
-            />
-            <datalist id="event-types">
-              {EVENT_TYPES.map((t) => (
-                <option key={t} value={t} />
-              ))}
-            </datalist>
-            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
-              Type a new one (e.g. "Installation Night") to create it on the fly.
-            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {EVENT_TYPES.map((t) => {
+                const active = type === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => {
+                      setType(t);
+                      setCustomType(false);
+                    }}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                      active && !customType
+                        ? "bg-[var(--primary)] text-white"
+                        : "bg-[var(--bg)] text-[var(--text)] hover:bg-[var(--border)]"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomType(true);
+                  setType("");
+                }}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                  customType
+                    ? "bg-[var(--primary)] text-white"
+                    : "bg-[var(--bg)] text-[var(--text)] hover:bg-[var(--border)]"
+                }`}
+              >
+                + Other
+              </button>
+            </div>
+            {customType && (
+              <input
+                autoFocus
+                className="input mt-2"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                placeholder="e.g. Installation Night"
+              />
+            )}
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">
