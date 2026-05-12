@@ -162,8 +162,27 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </ul>
       </nav>
 
-      <div className="px-5 pb-5 pt-3 text-[11px] text-[var(--text-muted)]">
-        Rotary Attendance · prototype
+      <div className="px-3 pb-4 pt-3">
+        <form action="/api/auth/signout" method="post">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-[13px] font-medium text-[var(--text-muted)] transition-colors hover:bg-[#f0f0f3] hover:text-[var(--text)]"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h12"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>Sign out</span>
+          </button>
+        </form>
+        <div className="mt-3 px-3 text-[11px] text-[var(--text-muted)]">
+          Rotary Attendance
+        </div>
       </div>
     </aside>
   );

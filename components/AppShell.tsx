@@ -21,6 +21,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const title = deriveTitle(pathname);
 
+  // Auth pages render without the app chrome.
+  if (pathname.startsWith("/login") || pathname.startsWith("/auth/")) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
