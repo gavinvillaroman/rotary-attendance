@@ -34,7 +34,8 @@ export async function DELETE(
   try {
     const { id } = await params;
     // Find all attendance for this event and delete first (no cascade).
-    const formula = `FIND('${id}', ARRAYJOIN({${ATTENDANCE_FIELDS.Event}}))`;
+    // filterByFormula requires field NAMES, not IDs.
+    const formula = `FIND('${id}', ARRAYJOIN({Event}))`;
     const attRecs = await airtableListAll(TABLES.Attendance, {
       filterByFormula: formula,
     });

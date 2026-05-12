@@ -14,7 +14,8 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const formula = `FIND('${id}', ARRAYJOIN({${ATTENDANCE_FIELDS.Event}}))`;
+    // filterByFormula only accepts field NAMES, not IDs. Sort accepts either.
+    const formula = `FIND('${id}', ARRAYJOIN({Event}))`;
     const attRecs = await airtableListAll(TABLES.Attendance, {
       filterByFormula: formula,
       "sort[0][field]": ATTENDANCE_FIELDS.CheckedInAt,
