@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     const created = await airtable<{ id: string; fields: Record<string, unknown> }>(
       TABLES.Events,
-      "?returnFieldsByFieldId=true",
+      "?returnFieldsByFieldId=true&typecast=true",
       {
         method: "POST",
         body: JSON.stringify({ fields }),

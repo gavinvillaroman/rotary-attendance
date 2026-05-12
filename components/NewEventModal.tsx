@@ -75,17 +75,21 @@ export function NewEventModal({ onClose }: { onClose: () => void }) {
             <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">
               Type
             </label>
-            <select
+            <input
               className="input"
+              list="event-types"
               value={type}
               onChange={(e) => setType(e.target.value)}
-            >
+              placeholder="Pick or type a new type"
+            />
+            <datalist id="event-types">
               {EVENT_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
+                <option key={t} value={t} />
               ))}
-            </select>
+            </datalist>
+            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
+              Type a new one (e.g. "Installation Night") to create it on the fly.
+            </p>
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-[var(--text-muted)]">
