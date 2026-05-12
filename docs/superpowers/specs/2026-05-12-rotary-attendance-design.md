@@ -1,7 +1,25 @@
 # Rotary Attendance Tracker — Design
 
 **Date:** 2026-05-12
-**Status:** Approved for planning
+**Status:** Approved for planning · Backend swapped from Supabase → Airtable 2026-05-12
+
+## Backend Change Note
+
+Switched from Supabase to **Airtable** during execution. Reasoning: user is on personal Airtable already (`airtable-gavin` MCP token), avoids Supabase project provisioning, and an existing `RC Cabanatuan North` table in base `Rotary` (`appjrCXmKfLR6MLGL`) is reused as the Members source. Tradeoff documented: free-plan 1,000-record cap will hit at ~year 1 of weekly meetings; migrate to Supabase or upgrade plan then.
+
+Schema mapping (see `reference_rotary_attendance_base.md` in user memory for full IDs):
+- **Members** = existing table `RC Cabanatuan North` (`tblKR99JLmo85ER7R`) — fields: Name, Title, Classification, Contact Number, Email, Status
+- **Events** = `tblUS7a8PKhSj8CFG` — fields: Name, Date, Type, Location, Notes. Type options: Weekly Meeting / Board Meeting / Fundraiser / Social / Service Project (broader than original spec)
+- **Attendance** = `tblRMKKZ168TgPAC7` — fields: Check-In (primary text), Event (link), Member (link), Guest Name, Checked In At
+
+App impact:
+- All Supabase client calls become Airtable REST calls. To keep the anon-key safe, calls go through Next.js Route Handlers at `/api/*` that proxy to Airtable using `AIRTABLE_TOKEN` (server-only env var). Browser never sees the token.
+- The "member XOR guest" constraint isn't enforced by Airtable schema — handle in app code (UI only ever sets one or the other).
+- "One check-in per member per event" constraint also not enforced — app filters out already-checked-in members from the search list.
+- Role labels in UI use Airtable's existing Title options (President / Vice President / Secretary / Rotarian / etc.) not the original Member/Guest enum.
+
+---
+
 
 ## Purpose
 
