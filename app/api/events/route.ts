@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { airtable, airtableListAll } from "@/lib/airtable";
 import { ATTENDANCE_FIELDS, EVENT_FIELDS, TABLES } from "@/lib/fields";
 import { parseAttendance, parseEvent } from "@/lib/types";
@@ -63,6 +64,7 @@ export async function POST(request: Request) {
       createdTime: "",
       fields: created.fields,
     });
+    revalidateTag("airtable", "max");
     return Response.json({ event });
   } catch (e) {
     return Response.json(

@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { airtable, airtableListAll } from "@/lib/airtable";
 import { ATTENDANCE_FIELDS, TABLES } from "@/lib/fields";
 import { parseAttendance, parseEvent } from "@/lib/types";
@@ -45,6 +46,7 @@ export async function DELETE(
       await airtable(TABLES.Attendance, `?${qs}`, { method: "DELETE" });
     }
     await airtable(TABLES.Events, `/${id}`, { method: "DELETE" });
+    revalidateTag("airtable", "max");
     return Response.json({ ok: true });
   } catch (e) {
     return Response.json(

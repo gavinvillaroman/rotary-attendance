@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 import { airtableListAll } from "@/lib/airtable";
 import { EVENT_FIELDS, TABLES } from "@/lib/fields";

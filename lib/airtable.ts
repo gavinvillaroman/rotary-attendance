@@ -31,6 +31,8 @@ export async function airtable<T = unknown>(
 ): Promise<T> {
   const { token, baseId } = getEnv();
   const url = `${API_BASE}/${baseId}/${table}${path}`;
+  const method = (init.method ?? "GET").toUpperCase();
+  const isRead = method === "GET";
   const res = await fetch(url, {
     ...init,
     headers: {
@@ -38,7 +40,11 @@ export async function airtable<T = unknown>(
       "Content-Type": "application/json",
       ...(init.headers || {}),
     },
-    cache: "no-store",
+    // Reads: cache for 30s with a tag so writes can invalidate.
+    // Writes: never cache.
+    ...(isRead
+      ? { next: { revalidate: 30, tags: ["airtable"] } }
+      : { cache: "no-store" as const }),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
