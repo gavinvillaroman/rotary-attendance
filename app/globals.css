@@ -137,3 +137,80 @@ select {
   background: #e7f9ee;
   color: #1f8a3b;
 }
+.badge-honorary {
+  background: #eef4ff;
+  color: var(--primary);
+}
+.badge-type-weekly {
+  background: #eef4ff;
+  color: #0a4fb0;
+}
+.badge-type-board {
+  background: #f1ecff;
+  color: #5b3bbd;
+}
+.badge-type-fundraiser {
+  background: #e7f9ee;
+  color: #1f8a3b;
+}
+.badge-type-social {
+  background: #fff7d9;
+  color: #8a6a00;
+}
+.badge-type-service {
+  background: #ffe9d1;
+  color: #a85a00;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Data tables */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  z-index: 1;
+}
+.data-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table tbody tr.row-link {
+  cursor: pointer;
+}
+.data-table tbody tr:hover {
+  background: #fafafa;
+}
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.data-table th.sortable:hover {
+  color: var(--text);
+}
+.table-wrap {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}

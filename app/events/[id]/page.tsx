@@ -3,6 +3,7 @@ import { airtable } from "@/lib/airtable";
 import { TABLES } from "@/lib/fields";
 import { parseEvent } from "@/lib/types";
 import type { Event } from "@/lib/types";
+import { TypeBadge } from "@/components/TypeBadge";
 import { CheckInPanel } from "./check-in-panel";
 
 function formatDate(iso: string): string {
@@ -37,8 +38,8 @@ export default async function EventDetailPage({
   if (error || !event) {
     return (
       <div>
-        <Link href="/" className="text-sm text-[var(--primary)]">
-          ← Back
+        <Link href="/events" className="text-sm text-[var(--primary)]">
+          ← Back to events
         </Link>
         <div className="card mt-4 p-4 text-sm text-red-600">
           {error ?? "Event not found"}
@@ -48,26 +49,29 @@ export default async function EventDetailPage({
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-[960px]">
       <Link
-        href="/"
+        href="/events"
         className="mb-4 inline-block text-sm font-medium text-[var(--primary)]"
       >
         ← Events
       </Link>
-      <header className="mb-6">
-        {event.type && (
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-            {event.type}
+
+      <header className="card mb-6 px-6 py-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="mb-2">
+              <TypeBadge type={event.type} />
+            </div>
+            <h1 className="text-[28px] font-semibold leading-tight tracking-tight">
+              {event.name}
+            </h1>
+            <p className="mt-1 text-[14px] text-[var(--text-muted)]">
+              {formatDate(event.date)}
+              {event.location ? ` · ${event.location}` : ""}
+            </p>
           </div>
-        )}
-        <h1 className="text-[28px] font-bold leading-tight tracking-tight">
-          {event.name}
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--text-muted)]">
-          {formatDate(event.date)}
-          {event.location ? ` · ${event.location}` : ""}
-        </p>
+        </div>
       </header>
 
       <CheckInPanel eventId={event.id} eventName={event.name} />

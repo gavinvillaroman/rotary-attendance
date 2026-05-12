@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { TabBar } from "@/components/TabBar";
+import { AppShell } from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "Rotary Attendance",
@@ -13,10 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full">
-        <TabBar />
-        <main className="mx-auto w-full max-w-[640px] px-4 pb-24 pt-6 sm:pt-8">
-          {children}
-        </main>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

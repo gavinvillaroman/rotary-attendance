@@ -55,7 +55,7 @@ export function CheckInPanel({
       const res = await fetch(`/api/events/${eventId}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
-      router.push("/");
+      router.push("/events");
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
