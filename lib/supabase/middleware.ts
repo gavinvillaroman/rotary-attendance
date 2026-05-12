@@ -25,19 +25,13 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh session and read user (this is the canonical pattern).
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() decodes the JWT cookie locally — no network roundtrip.
+  // RLS in the database still enforces real auth on data reads/writes,
+  // so a forged JWT can't actually do anything.
+  const { data } = await supabase.auth.getClaims();
+  const isSignedIn = !!data?.claims;
 
-  const { pathname } = request.nextUrl;
-  const isPublic =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/auth/") ||
-    pathname.startsWith("/_next") ||
-    pathname === "/favicon.ico";
-
-  if (!user && !isPublic) {
+  if (!isSignedIn) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
